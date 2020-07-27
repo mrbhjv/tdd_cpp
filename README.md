@@ -4,5 +4,4 @@ GCC
 CMAKE
 GTEST
 
-TODO
-Setup dev environment (With linter)
+If you're using vscode. The .devcontainer folder will be useful :-)
