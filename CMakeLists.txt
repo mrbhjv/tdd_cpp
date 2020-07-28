@@ -7,7 +7,7 @@ find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
 
 add_executable(run_tests 
-        test/dummy_test.cpp
+        test/string_calculator_test.cpp
         )
 
 target_link_libraries(run_tests 
