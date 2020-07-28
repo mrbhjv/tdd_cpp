@@ -8,6 +8,7 @@ FROM gcc:latest
 RUN apt-get update && apt-get install -y \
     cmake \
     git \
+    gdb \
     && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/google/googletest.git \
