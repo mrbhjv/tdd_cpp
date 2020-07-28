@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
+SET(CMAKE_CXX_FLAGS "-g -Wall -fprofile-arcs -ftest-coverage")
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(GTest REQUIRED)
