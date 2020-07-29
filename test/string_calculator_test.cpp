@@ -27,11 +27,7 @@ private:
     {
         return str.find(delimiter_) != std::string::npos;
     }
-    bool is_delimiter_before_value(std::string str)
-    {
-        return str.find(delimiter_) == 0;
-    }
-
+    
     std::string get_value_after_delimiter(std::string str)
     {
         return str.substr(str.find(delimiter_) + 1);
@@ -55,13 +51,13 @@ TEST_F(StringCalculatorTestFixture, Should_ReturnZeroWhenEmptyString)
     ASSERT_EQ(0, result);
 }
 
-class StringCalculatorTestFixtureOneArgument : public ::testing::TestWithParam<std::string>
+class StringCalculatorTestFixtureSingleValueNoComma : public ::testing::TestWithParam<std::string>
 {
 protected:
     StringCalculator sc{};
 };
 
-TEST_P(StringCalculatorTestFixtureOneArgument, When_NoComma_Should_ReturnSameValueAsInput)
+TEST_P(StringCalculatorTestFixtureSingleValueNoComma, When_NoComma_Should_ReturnSameValueAsInput)
 {
     std::string expected = GetParam();
     int result = sc.add(expected);
@@ -70,7 +66,7 @@ TEST_P(StringCalculatorTestFixtureOneArgument, When_NoComma_Should_ReturnSameVal
 
 INSTANTIATE_TEST_SUITE_P(
     StringCalculatorSingleArgumentTests,
-    StringCalculatorTestFixtureOneArgument,
+    StringCalculatorTestFixtureSingleValueNoComma,
     ::testing::Values("1", "105", "800"));
 
 TEST_F(StringCalculatorTestFixture, Should_ReturnNumberPlusZeroWhenNumberCommaEmpty)
@@ -96,3 +92,27 @@ TEST_F(StringCalculatorTestFixture, Should_ReturnThreeWhenTwoCommaOne)
     int result = sc.add("1,2");
     ASSERT_EQ(3, result);
 }
+
+TEST_F(StringCalculatorTestFixture, Should_ReturnZeroWhenMultipleCommasNoValues)
+{
+    int result = sc.add(",,");
+    ASSERT_EQ(0, result);
+}
+
+class StringCalculatorTestFixtureSingleValueMultipleCommas : public ::testing::TestWithParam<std::pair<int, std::string>>
+{
+protected:
+    StringCalculator sc{};
+};
+
+TEST_P(StringCalculatorTestFixtureSingleValueMultipleCommas, Should_ReturnValueWhenValueAndMultipleEmptyComma)
+{
+    auto param = GetParam();
+    int result = sc.add(param.second);
+    ASSERT_EQ(param.first, result);
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    StringCalculatorSingleArgumentTests,
+    StringCalculatorTestFixtureSingleValueMultipleCommas,
+    ::testing::Values(std::make_pair(1, "1,,"), std::make_pair(105, ",105,,"), std::make_pair(800, ",,800")));
