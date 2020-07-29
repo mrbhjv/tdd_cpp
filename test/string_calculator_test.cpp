@@ -21,7 +21,7 @@ public:
             }
             else
             {
-                return std::stoi(numbers.substr(0, numbers.find(','))) + add(get_value_after_delimiter(numbers));
+                return add(numbers.substr(0, numbers.find(','))) + add(get_value_after_delimiter(numbers));
             }
         }
         return std::stoi(numbers);
