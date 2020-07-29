@@ -21,7 +21,7 @@ public:
             }
             else
             {
-                return add(numbers.substr(0, numbers.find(','))) + add(get_value_after_delimiter(numbers));
+                return add(get_value_before_delimiter(numbers)) + add(get_value_after_delimiter(numbers));
             }
         }
         return std::stoi(numbers);
@@ -42,6 +42,11 @@ private:
     std::string get_value_after_delimiter(std::string str)
     {
         return str.substr(str.find(delimiter_) + 1);
+    }
+
+    std::string get_value_before_delimiter(std::string str)
+    {
+        return str.substr(0, str.find(','));
     }
 };
 
