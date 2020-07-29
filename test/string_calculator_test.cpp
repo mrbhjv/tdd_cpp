@@ -15,14 +15,7 @@ public:
         }
         if (has_delimiter(numbers))
         {
-            if (is_delimiter_before_value(numbers))
-            {
-                return add(get_value_after_delimiter(numbers));
-            }
-            else
-            {
-                return add(get_value_before_delimiter(numbers)) + add(get_value_after_delimiter(numbers));
-            }
+            return add(get_value_before_delimiter(numbers)) + add(get_value_after_delimiter(numbers));
         }
         return std::stoi(numbers);
     }
