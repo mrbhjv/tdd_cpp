@@ -13,8 +13,31 @@ public:
         {
             return 0;
         }
-
+        if (has_delimiter(numbers))
+        {
+            if (is_delimiter_before_value(numbers))
+            {
+                return std::stoi(get_value_after_delimiter(numbers));
+            }
+        }
         return std::stoi(numbers);
+    }
+
+private:
+    std::string delimiter_ = ",";
+
+    bool has_delimiter(std::string str)
+    {
+        return str.find(delimiter_) != std::string::npos;
+    }
+    bool is_delimiter_before_value(std::string str)
+    {
+        return str.find(delimiter_) == 0;
+    }
+
+    std::string get_value_after_delimiter(std::string str)
+    {
+        return str.substr(str.find(delimiter_) + 1);
     }
 };
 
@@ -48,3 +71,14 @@ INSTANTIATE_TEST_SUITE_P(
     StringCalculatorTestFixtureOneArgument,
     ::testing::Values("1", "105", "800"));
 
+TEST_F(StringCalculatorTestFixture, Should_ReturnNumberPlusZeroWhenNumberCommaEmpty)
+{
+    int result = sc.add("2,");
+    ASSERT_EQ(2, result);
+}
+
+TEST_F(StringCalculatorTestFixture, Should_ReturnNumberPlusZeroWhenEmptyCommaNumber)
+{
+    int result = sc.add(",2");
+    ASSERT_EQ(2, result);
+}
