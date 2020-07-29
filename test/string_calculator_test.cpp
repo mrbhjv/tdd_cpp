@@ -27,7 +27,7 @@ private:
     {
         return str.find(delimiter_) != std::string::npos;
     }
-    
+
     std::string get_value_after_delimiter(std::string str)
     {
         return str.substr(str.find(delimiter_) + 1);
@@ -116,3 +116,21 @@ INSTANTIATE_TEST_SUITE_P(
     StringCalculatorSingleArgumentTests,
     StringCalculatorTestFixtureSingleValueMultipleCommas,
     ::testing::Values(std::make_pair(1, "1,,"), std::make_pair(105, ",105,,"), std::make_pair(800, ",,800")));
+
+class StringCalculatorTestFixtureMultipleValuesAndCommas : public ::testing::TestWithParam<std::pair<int, std::string>>
+{
+protected:
+    StringCalculator sc{};
+};
+
+TEST_P(StringCalculatorTestFixtureMultipleValuesAndCommas, Should_ReturnValueWhenValueAndMultipleEmptyComma)
+{
+    auto param = GetParam();
+    int result = sc.add(param.second);
+    ASSERT_EQ(param.first, result);
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    StringCalculatorSingleArgumentTests,
+    StringCalculatorTestFixtureMultipleValuesAndCommas,
+    ::testing::Values(std::make_pair(3, "1,,2"), std::make_pair(127, "7,105,,5,10"), std::make_pair(-800, ",,800,-1600")));
