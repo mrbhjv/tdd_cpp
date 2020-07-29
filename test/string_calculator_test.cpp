@@ -19,6 +19,10 @@ public:
             {
                 return add(get_value_after_delimiter(numbers));
             }
+            else
+            {
+                return std::stoi(numbers.substr(0, numbers.find(','))) + add(get_value_after_delimiter(numbers));
+            }
         }
         return std::stoi(numbers);
     }
@@ -87,4 +91,10 @@ TEST_F(StringCalculatorTestFixture, Should_ReturnZeroWhenEmptyCommaEmpty)
 {
     int result = sc.add(",");
     ASSERT_EQ(0, result);
+}
+
+TEST_F(StringCalculatorTestFixture, Should_ReturnThreeWhenTwoCommaOne)
+{
+    int result = sc.add("1,2");
+    ASSERT_EQ(3, result);
 }
