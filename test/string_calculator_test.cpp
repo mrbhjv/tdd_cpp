@@ -13,6 +13,11 @@ public:
         {
             return 0;
         }
+        if (has_override_delimiter_seq(numbers))
+        {
+            delimiter_ = get_new_delimiter(numbers);
+            numbers = remove_override_delimiter_seq(numbers);
+        }
         if (has_any_default_delimiter(numbers))
         {
             validate_delimiter(numbers);
@@ -22,13 +27,30 @@ public:
     }
 
 private:
+    std::string delimiter_override_seq_ = "//";
     std::string comma_delimiter_ = ",";
     std::string newline_delimiter_ = "\n";
     std::string default_delimiters_ = comma_delimiter_ + newline_delimiter_;
+    std::string delimiter_ = default_delimiters_;
+
+    bool has_override_delimiter_seq(std::string str)
+    {
+        return str.find(delimiter_override_seq_) != std::string::npos;
+    }
+
+    std::string get_new_delimiter(std::string str)
+    {
+        return str.substr(str.find(delimiter_override_seq_) + delimiter_override_seq_.length(), 1);
+    }
+
+    std::string remove_override_delimiter_seq(std::string str)
+    {
+        return str.substr(3);
+    }
 
     bool has_any_default_delimiter(std::string str)
     {
-        return str.find_first_of(default_delimiters_) != std::string::npos;
+        return str.find_first_of(delimiter_) != std::string::npos;
     }
 
     void validate_delimiter(std::string str)
@@ -47,12 +69,12 @@ private:
 
     std::string get_value_after_delimiter(std::string str)
     {
-        return str.substr(str.find_first_of(default_delimiters_) + 1);
+        return str.substr(str.find_first_of(delimiter_) + 1);
     }
 
     std::string get_value_before_delimiter(std::string str)
     {
-        return str.substr(0, str.find_first_of(default_delimiters_));
+        return str.substr(0, str.find_first_of(delimiter_));
     }
 };
 
@@ -164,4 +186,16 @@ TEST_F(StringCalculatorTestFixture, Should_NotWorkWithCommaAndNewLineAfterEachOt
 {
     ASSERT_THROW(sc.add("1,\n"), std::invalid_argument);
     ASSERT_THROW(sc.add("1\n,"), std::invalid_argument);
+}
+
+TEST_F(StringCalculatorTestFixture, Should_ChangeDefaultDelimiterToSemiCollon)
+{
+    auto result = sc.add("//;\n1;1");
+    ASSERT_EQ(2, result);
+}
+
+TEST_F(StringCalculatorTestFixture, Should_ChangeDefaultDelimiterToHyphen)
+{
+    auto result = sc.add("//_\n1_1");
+    ASSERT_EQ(2, result);
 }
