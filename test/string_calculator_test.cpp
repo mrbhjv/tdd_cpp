@@ -13,29 +13,46 @@ public:
         {
             return 0;
         }
-        if (has_delimiter(numbers))
+        if (has_any_default_delimiter(numbers))
         {
+            validate_delimiter(numbers);
             return add(get_value_before_delimiter(numbers)) + add(get_value_after_delimiter(numbers));
         }
         return std::stoi(numbers);
     }
 
 private:
-    std::string delimiter_ = ",";
+    std::string comma_delimiter_ = ",";
+    std::string newline_delimiter_ = "\n";
+    std::string default_delimiters_ = comma_delimiter_ + newline_delimiter_;
 
-    bool has_delimiter(std::string str)
+    bool has_any_default_delimiter(std::string str)
     {
-        return str.find(delimiter_) != std::string::npos;
+        return str.find_first_of(default_delimiters_) != std::string::npos;
+    }
+
+    void validate_delimiter(std::string str)
+    {
+        if (has_illegal_delimiters(str))
+        {
+            throw std::invalid_argument(", and newline can't be together");
+        }
+    }
+
+    bool has_illegal_delimiters(std::string str)
+    {
+        return str.find(comma_delimiter_ + newline_delimiter_) != std::string::npos ||
+               str.find(newline_delimiter_ + comma_delimiter_) != std::string::npos;
     }
 
     std::string get_value_after_delimiter(std::string str)
     {
-        return str.substr(str.find(delimiter_) + 1);
+        return str.substr(str.find_first_of(default_delimiters_) + 1);
     }
 
     std::string get_value_before_delimiter(std::string str)
     {
-        return str.substr(0, str.find(','));
+        return str.substr(0, str.find_first_of(default_delimiters_));
     }
 };
 
@@ -134,3 +151,17 @@ INSTANTIATE_TEST_SUITE_P(
     StringCalculatorSingleArgumentTests,
     StringCalculatorTestFixtureMultipleValuesAndCommas,
     ::testing::Values(std::make_pair(3, "1,,2"), std::make_pair(127, "7,105,,5,10"), std::make_pair(-800, ",,800,-1600")));
+
+TEST_F(StringCalculatorTestFixture, Should_WorkWithNewLineAndCommaAsDelimiter)
+{
+    auto result = sc.add("1\n2,3");
+    ASSERT_EQ(6, result);
+    result = sc.add("1,2\n3");
+    ASSERT_EQ(6, result);
+}
+
+TEST_F(StringCalculatorTestFixture, Should_NotWorkWithCommaAndNewLineAfterEachOther)
+{
+    ASSERT_THROW(sc.add("1,\n"), std::invalid_argument);
+    ASSERT_THROW(sc.add("1\n,"), std::invalid_argument);
+}
