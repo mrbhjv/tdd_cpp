@@ -7,23 +7,23 @@ class StringCalculator
 public:
     StringCalculator() = default;
 
-    int add(std::string numbers)
+    int add(std::string input)
     {
-        if (numbers.empty())
+        if (input.empty())
         {
             return 0;
         }
-        if (has_override_delimiter_seq(numbers))
+        if (has_override_delimiter_seq(input))
         {
-            delimiter_ = get_new_delimiter(numbers);
-            numbers = remove_override_delimiter_seq(numbers);
+            delimiter_ = get_new_delimiter(input);
+            input = remove_override_delimiter_seq(input);
         }
-        if (has_any_default_delimiter(numbers))
+        if (has_any_default_delimiter(input))
         {
-            validate_delimiter(numbers);
-            return add(get_value_before_delimiter(numbers)) + add(get_value_after_delimiter(numbers));
+            validate_delimiter(input);
+            return add(get_value_before_delimiter(input)) + add(get_value_after_delimiter(input));
         }
-        return std::stoi(numbers);
+        return std::stoi(input);
     }
 
 private:
@@ -198,4 +198,10 @@ TEST_F(StringCalculatorTestFixture, Should_ChangeDefaultDelimiterToHyphen)
 {
     auto result = sc.add("//_\n1_1");
     ASSERT_EQ(2, result);
+}
+
+TEST_F(StringCalculatorTestFixture, Should_ChangeDefaultDelimiterWithoutNewlineAfterDelimiter)
+{
+    auto result = sc.add("//_1_1_1_");
+    ASSERT_EQ(3, result);
 }
