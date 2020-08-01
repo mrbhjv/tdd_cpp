@@ -23,7 +23,7 @@ public:
             validate_delimiter(input);
             return add(get_value_before_delimiter(input)) + add(get_value_after_delimiter(input));
         }
-        return std::stoi(input);
+        return filtered_value(input);
     }
 
 private:
@@ -33,27 +33,27 @@ private:
     std::string default_delimiters_ = comma_delimiter_ + newline_delimiter_;
     std::string delimiter_ = default_delimiters_;
 
-    bool has_override_delimiter_seq(const std::string& str)
+    bool has_override_delimiter_seq(const std::string &str)
     {
         return str.find(delimiter_override_seq_) != std::string::npos;
     }
 
-    std::string get_new_delimiter(const std::string& str)
+    std::string get_new_delimiter(const std::string &str)
     {
         return str.substr(str.find(delimiter_override_seq_) + delimiter_override_seq_.length(), 1);
     }
 
-    std::string remove_override_delimiter_seq(const std::string& str)
+    std::string remove_override_delimiter_seq(const std::string &str)
     {
         return str.substr(3);
     }
 
-    bool has_any_default_delimiter(const std::string& str)
+    bool has_any_default_delimiter(const std::string &str)
     {
         return str.find_first_of(delimiter_) != std::string::npos;
     }
 
-    void validate_delimiter(const std::string& str)
+    void validate_delimiter(const std::string &str)
     {
         if (has_illegal_delimiters(str))
         {
@@ -61,20 +61,26 @@ private:
         }
     }
 
-    bool has_illegal_delimiters(const std::string& str)
+    bool has_illegal_delimiters(const std::string &str)
     {
         return str.find(comma_delimiter_ + newline_delimiter_) != std::string::npos ||
                str.find(newline_delimiter_ + comma_delimiter_) != std::string::npos;
     }
 
-    std::string get_value_after_delimiter(const std::string& str)
+    std::string get_value_after_delimiter(const std::string &str)
     {
         return str.substr(str.find_first_of(delimiter_) + 1);
     }
 
-    std::string get_value_before_delimiter(const std::string& str)
+    std::string get_value_before_delimiter(const std::string &str)
     {
         return str.substr(0, str.find_first_of(delimiter_));
+    }
+
+    int filtered_value(const std::string &str)
+    {
+        int value = std::stoi(str);
+        return std::abs(value) >= 1000 ? 0 : value;
     }
 };
 
@@ -172,7 +178,7 @@ TEST_P(StringCalculatorTestFixtureMultipleValuesAndCommas, Should_ReturnValueWhe
 INSTANTIATE_TEST_SUITE_P(
     StringCalculatorSingleArgumentTests,
     StringCalculatorTestFixtureMultipleValuesAndCommas,
-    ::testing::Values(std::make_pair(3, "1,,2"), std::make_pair(127, "7,105,,5,10"), std::make_pair(-800, ",,800,-1600")));
+    ::testing::Values(std::make_pair(3, "1,,2"), std::make_pair(127, "7,105,,5,10"), std::make_pair(802, ",,800,7,-7,2")));
 
 TEST_F(StringCalculatorTestFixture, Should_WorkWithNewLineAndCommaAsDelimiter)
 {
@@ -204,4 +210,16 @@ TEST_F(StringCalculatorTestFixture, Should_ChangeDefaultDelimiterWithoutNewlineA
 {
     auto result = sc.add("//_1_1_1_");
     ASSERT_EQ(3, result);
+}
+
+TEST_F(StringCalculatorTestFixture, Should_IgnoreNumbersBiggerThanOneThousand)
+{
+    auto result = sc.add("1000");
+    ASSERT_EQ(0, result);
+}
+
+TEST_F(StringCalculatorTestFixture, Should_IgnoreNumbersSmallerThanNegativeOneThousand)
+{
+    auto result = sc.add("-1000");
+    ASSERT_EQ(0, result);
 }
